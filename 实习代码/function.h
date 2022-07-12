@@ -1,0 +1,42 @@
+/*
+ * @Descripttion: 
+ * @Author: DLCT
+ * @Date: 2022-07-11 17:18:40
+ * @e-mail: 18109232165@163.com
+ * @LastEditors: DLCT
+ * @LastEditTime: 2022-07-12 15:11:32
+ */
+#ifndef FUNCITON_H
+#define FUNCITON_H
+#include <iostream>
+#include <fstream>
+#include <malloc.h>
+#define LL unsigned long long
+
+char nu_to_char(int *nu){
+    char x;
+    x = nu[0] * 128 + nu[1] * 64 + nu[2] * 32 + nu[3] * 16 + nu[4] * 8 + nu[5] * 4 + nu[6] * 2 + nu[7] * 1;
+    return x;
+}
+
+char int_to_char(int nu){
+    int i = 1;
+    char ch = NULL;
+    for(int j = 0;j < 8;j++){
+        ch += i * (nu & 1 == 1 ? 1 : 0);
+        i <<= 1;
+        nu >>= 1;
+    }
+}
+
+void char_to_nu(int *nu, int ch){
+
+    for(int i = 7;i >= 0;i--){
+        nu[i] = ch & 1 == 1 ? 1 : 0;
+        ch>>=1;
+    }
+}
+
+
+
+#endif
