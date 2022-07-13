@@ -4,15 +4,16 @@
  * @Date: 2022-07-11 08:43:57
  * @e-mail: 18109232165@163.com
  * @LastEditors: DLCT
- * @LastEditTime: 2022-07-12 17:55:32
+ * @LastEditTime: 2022-07-13 17:32:26
  */
 #ifndef HUFFMANTREE_H
 #define HUFFMANTREE_H
 #include "PriorityQueue.h"
 #include "function.h"
+#include <queue>
 #include <vector>
 #include <map>
-#define LL unsigned long long
+#define LL long long
 using namespace std;
 
 vector<int> v;
@@ -20,11 +21,15 @@ vector<int> v;
 struct HuffmanTreeNode
 {
     char data;    //待编码数据
-    LL frequency; //出现频率
+    int frequency; //出现频率
     vector<int> code;
     bool isdata; //
     HuffmanTreeNode *lchild, *rchild;
-    HuffmanTreeNode() {}
+    HuffmanTreeNode() {
+        isdata = false;
+        lchild = NULL;
+        rchild = NULL;
+    }
     HuffmanTreeNode(char in_data, LL in_frequency)
     {
         data = in_data;
@@ -35,27 +40,18 @@ struct HuffmanTreeNode
     }
 };
 
-//重载运算符，用于优先队列
-bool operator<(const HuffmanTreeNode &n1, const HuffmanTreeNode &n2)
-{
-    return n1.frequency > n2.frequency;
-}
-
-bool operator>(const HuffmanTreeNode &n1, const HuffmanTreeNode &n2)
-{
-    return n1.frequency < n2.frequency;
-}
-
 class HuffmanTree
 {
 private:
     LL n; //字符个数
     HuffmanTreeNode *root;
     void createCode(HuffmanTreeNode *node); //编码
+    void nodeRemove(HuffmanTreeNode*);
 public:
     void createTree(LL datafrequency[]); //根据出现频数创建哈夫曼树
     vector<HuffmanTreeNode *> Nodes;     //存放结点
     void Decode(char *filename, unsigned char *str, LL fileLength);
+    void clear();
 };
 
 void HuffmanTree::createCode(HuffmanTreeNode *node)
@@ -80,38 +76,46 @@ void HuffmanTree::createCode(HuffmanTreeNode *node)
     }
 }
 
+struct cmp{
+   bool operator()(HuffmanTreeNode* a, HuffmanTreeNode* b){
+       return a->frequency >= b->frequency;
+   }
+};
+
 void HuffmanTree::createTree(LL datafrequency[])
 {
-    PriorityQueue<HuffmanTreeNode *> Q(10000);
+    priority_queue<HuffmanTreeNode *, vector<HuffmanTreeNode *>, cmp> Q;
+    // PriorityQueue<HuffmanTreeNode *> Q(10000);
     for (int i = 0; i < 256; i++)
     {
         if (datafrequency[i] != 0)
         {
-            HuffmanTreeNode *newNode = new HuffmanTreeNode(int_to_char(i), datafrequency[i]);
-            Q.insert(newNode);
+            HuffmanTreeNode *newNode = new HuffmanTreeNode(i, datafrequency[i]);
+            Q.push(newNode);
         }
     }
     HuffmanTreeNode *left, *right;
-    while (Q.length() > 1)
+    while(Q.size() != 1)
     {
-        left = Q.del();
-        right = Q.del();
-        HuffmanTreeNode *newNode = new HuffmanTreeNode();
+        left = Q.top();
+        Q.pop();
+        right = Q.top();
+        Q.pop();
+        HuffmanTreeNode *newNode = new HuffmanTreeNode;
         newNode->frequency = left->frequency + right->frequency;
         newNode->isdata = false;
         newNode->lchild = left;
         newNode->rchild = right;
-        Q.insert(newNode);
+        Q.push(newNode);
     }
-    root = Q.del();
+    root = Q.top();
     createCode(root);
 }
 
 void HuffmanTree::Decode(char *filename, unsigned char *str, LL fileLength)
 {
    
-    ofstream output;
-    output.open(filename, ios::binary);
+    ofstream output(filename);
     int nu[8] = {0};
     int count_lock = str[fileLength-1];
     int count_nu = 0;
@@ -131,20 +135,35 @@ void HuffmanTree::Decode(char *filename, unsigned char *str, LL fileLength)
                 break;
             }
             char_to_nu(nu, str[count_str++]);
+            // cout<<endl;
+            // for(int i = 0;i < 8;i++)
+            //     cout<<nu[i];
+            // cout<<endl;
             count_nu = 0;
         }
         if (p->lchild == NULL && p->rchild == NULL)
         {
             //消除换行符错误
-            if(str[count_str-1] == 13 && str[count_str] == 10) continue;
-            output.put(p->data);
-            cout<<p->data;
-            cout<<endl;
+            if(p->data != 13)
+                output.put(p->data);
             count++;
             p = root;
         }
-        cout<<nu[count];
         p = nu[count_nu++] == 1 ? p->rchild : p->lchild;
     }
+}
+
+void HuffmanTree::clear(){
+    n = 0;
+    Nodes.clear();
+    root = NULL;
+    //nodeRemove(root);
+}
+void HuffmanTree::nodeRemove(HuffmanTreeNode *p){
+    if(p->lchild == NULL && p->rchild ==NULL)
+        delete p;
+    nodeRemove(p->lchild);
+    nodeRemove(p->rchild);
+    delete p;
 }
 #endif

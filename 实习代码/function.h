@@ -4,14 +4,14 @@
  * @Date: 2022-07-11 17:18:40
  * @e-mail: 18109232165@163.com
  * @LastEditors: DLCT
- * @LastEditTime: 2022-07-12 15:11:32
+ * @LastEditTime: 2022-07-13 17:40:53
  */
 #ifndef FUNCITON_H
 #define FUNCITON_H
 #include <iostream>
 #include <fstream>
 #include <malloc.h>
-#define LL unsigned long long
+#define LL long long
 
 char nu_to_char(int *nu){
     char x;
@@ -37,6 +37,15 @@ void char_to_nu(int *nu, int ch){
     }
 }
 
+int char_to_int(char ch){
+    int sum = 0;
+    int i = 2;
+    for(int j = 0;j < 8;j++){
+        sum += i * (ch & 1 == 1 ? 1 : 0);
+        i <<= 1;
+        ch >>= 1;
+    }
+}
 
 
 #endif
