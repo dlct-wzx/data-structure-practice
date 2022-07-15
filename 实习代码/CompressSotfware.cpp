@@ -4,129 +4,33 @@
  * @Date: 2022-07-11 10:27:55
  * @e-mail: 18109232165@163.com
  * @LastEditors: DLCT
- * @LastEditTime: 2022-07-14 17:37:06
+ * @LastEditTime: 2022-07-15 16:59:24
  */
 #include <iostream>
 #include <fstream>
 #include <string>
-#include<math.h>
-#include<time.h>
-#include <set>
+#include <time.h>
 #include <malloc.h>
 #include "HuffmanTree.h"
 #include "function.h"
 using namespace std;
 
-int a[256] = {0};
-HuffmanTreeNode *b[256] = {NULL};
-unsigned char *buf;
-HuffmanTree tree;
+HuffmanTreeNode *b[256] = {NULL};   //用于存放不同字节对的结点指针
+HuffmanTree tree;                   //存放哈夫曼树
 
-int openFile(char *filename, unsigned char **str);
+int openFile(char *filename, unsigned char **str);                      //
 double compressFile(unsigned char *str, int filelength, char *filname);
 double decompressFile(char *filename);
-void changeFileName(char *filename);
+void changeFileName(char *filename, char *newextension);
 
 void outputHuffmanCode();
 void output(char *filename, unsigned char *str);
 char nu_to_char(int *nu);
-int inputLength;
 
-map<int, vector<int> > M;
 
-int slove()
-{
-    char filename[] = "input.txt";
-    inputLength = openFile(filename, &buf);
-    cout << inputLength << endl;
-    
-    for (int i = 0; i < inputLength; i++)
-    {
-        a[int(buf[i])]++;
-    }
-    tree.createTree(a);
-    vector<int>::iterator j;
-    cout << tree.Nodes.size() << endl;
-    for (int i = 0; i < tree.Nodes.size(); i++)
-    {
-        b[tree.Nodes[i]->data] = tree.Nodes[i];
-        M[abs(int(tree.Nodes[i]->data))] = tree.Nodes[i]->code;
-        // cout<<int(tree.Nodes[i]->data)<<" "<<M[tree.Nodes[i]->data].size()<<endl;
-        // cout<<tree.Nodes[i]->code.size()<<endl;
-        // cout << tree.Nodes[i]->data << " " << tree.Nodes[i]->frequency << endl;
-        // for (j = tree.Nodes[i]->code.begin(); j != tree.Nodes[i]->code.end(); j++)
-        // {
-        //     cout << *j << " ";
-        // }
-        // cout << endl;
-    }
-    cout << "there" << endl;
-    output("output.txt", buf);
-    free(buf);
-    inputLength = openFile("output.txt", &buf);
-    cout << endl
-         << inputLength << endl;
-    cout << "----------------------------------------------" << endl;
-    tree.Decode("jm.txt", buf, inputLength);
-    free(buf);
-    return 0;
-}
-
-void output(char *filename, unsigned char *str)
-{
-    ofstream output(filename, ios::binary);
-    ofstream debug("debug.txt");
-    int nu[8] = {0};
-    int count = 0;
-    int x;
-    cout << "there" << endl;
-    int s = 0;
-    cout<<inputLength<<endl;
-    for (int i = 0; i < inputLength; i++)
-    {
-        x = str[i];
-        //cout<<x<<" "<<M[x].size()<<endl;
-        for (int j = 0; j < M[x].size(); j++)
-        {
-            
-            if (count == 8)
-            {
-                
-                output.put(nu_to_char(nu));
-                count = 0;
-                s++;
-            }
-            nu[count++] = M[x][j];
-        }
-    }
-    cout << "there" << endl;
-    cout << count << endl;
-    if (count != 0)
-    {
-        output << nu_to_char(nu);
-    }
-    char ch = count;
-    output << ch;
-    output.close();
-}
-
-int openFile(char *filename, unsigned char **str)
-{
-    FILE *input = NULL;
-    input = fopen(filename, "rb");
-    fseek(input, 0, SEEK_END);
-    int inputLength = ftell(input);
-    rewind(input);
-    *str = (unsigned char *)malloc(inputLength);
-    memset((*str), 0, inputLength);
-    fread((*str), 1, inputLength, input);
-    fclose(input);
-    return inputLength;
-}
 
 int main()
 {
-    //    solve();
     clock_t start, finish;
     double totaltime;
     char oper;
@@ -161,8 +65,8 @@ int main()
                     break;
             }
             start = clock();
-            double bl =  compressFile(buf, fileLength, filename) * 100;
-            finish  = clock();
+            double bl = compressFile(buf, fileLength, filename) * 100;
+            finish = clock();
             totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
             printf("压缩成功！压缩时间为：%.3fs\n压缩比率为：%.2f%\n", totaltime, bl);
             cout << "是否输出哈夫曼编码(y/n)：";
@@ -176,7 +80,7 @@ int main()
             }
             tree.clear();
             memset(filename, 0, sizeof(filename));
-           // free(buf);
+            // free(buf);
             for (int i = 0; i < 256; i++)
                 b[i] = NULL;
         }
@@ -198,10 +102,9 @@ int main()
                     break;
             }
             start = clock();
-            decompressFile(filename);
-            finish  = clock();
-            totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-            printf("解压成功！解压时间为：%.3fs\n", totaltime);
+            totaltime = decompressFile(filename);
+            finish = clock();
+            printf("解压成功！解压时间为：%.3fs\n", (double)(finish - start) / CLOCKS_PER_SEC - totaltime);
             cout << "是否输出哈夫曼编码(y/n)：";
             char ch;
             cin >> ch;
@@ -229,10 +132,25 @@ int main()
     }
 }
 
+int openFile(char *filename, unsigned char **str)
+{
+    FILE *input = NULL;
+    input = fopen(filename, "rb");
+    fseek(input, 0, SEEK_END);
+    int inputLength = ftell(input);
+    rewind(input);
+    *str = (unsigned char *)malloc(inputLength);
+    memset((*str), 0, inputLength);
+    fread((*str), 1, inputLength, input);
+    fclose(input);
+    return inputLength;
+}
+
+
 double compressFile(unsigned char *str, int filelength, char *filename)
 {
     int count[256] = {0};
-    changeFileName(filename);
+    changeFileName(filename, "dlct");
     ofstream output(filename, ios::binary);
     for (int i = 0; i < filelength; i++)
         count[str[i]]++;
@@ -277,6 +195,7 @@ double compressFile(unsigned char *str, int filelength, char *filename)
 
 double decompressFile(char *filename)
 {
+    int inputLength;
     int count[256] = {0};
     unsigned char *str;
     int len, nu;
@@ -297,9 +216,15 @@ double decompressFile(char *filename)
     int digit = getOffset(count, len);
     inputLength -= digit;
     str = str + digit;
-
-    tree.Decode("1.txt", str, inputLength);
-    return 1.0;
+    char newfilename[100];
+    clock_t start, finish;
+    start = clock();
+    printf("请输入解压后文件名：:");
+    scanf("%s", newfilename);
+    finish = clock();
+    tree.Decode(newfilename, str, inputLength);
+    return (double)(finish - start) / CLOCKS_PER_SEC;
+    ;
 }
 
 void outputHuffmanCode()
@@ -321,12 +246,18 @@ void outputHuffmanCode()
     }
 }
 
-void changeFileName(char *filename)
+void changeFileName(char *filename, char *newextension)
 {
     int len = strlen(filename);
-    filename[len + 1] = '\0';
-    filename[len] = 't';
-    filename[len - 1] = 'c';
-    filename[len - 2] = 'l';
-    filename[len - 3] = 'd';
+    char *ch = strchr(filename, '.');
+    if (ch != NULL)
+    {
+        for (int i = 0; i < strlen(newextension); i++)
+            *(ch + i + 1) = newextension[i];
+    }
+    else
+    {
+        for (int i = 0; i < strlen(newextension); i++)
+            filename[len + i] = newextension[i];
+    }
 }
