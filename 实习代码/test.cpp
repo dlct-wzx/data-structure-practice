@@ -4,118 +4,118 @@
  * @Date: 2022-07-11 10:27:55
  * @e-mail: 18109232165@163.com
  * @LastEditors: DLCT
- * @LastEditTime: 2022-07-13 17:50:12
+ * @LastEditTime: 2022-07-14 17:37:06
  */
 #include <iostream>
 #include <fstream>
 #include <string>
+#include<math.h>
+#include<time.h>
+#include <set>
 #include <malloc.h>
 #include "HuffmanTree.h"
 #include "function.h"
 using namespace std;
 
-// LL a[256] = {0};
+int a[256] = {0};
 HuffmanTreeNode *b[256] = {NULL};
-// unsigned char *buf;
+unsigned char *buf;
 HuffmanTree tree;
 
-LL openFile(char *filename, unsigned char **str);
-double compressFile(unsigned char *str, LL filelength, char *filname);
+int openFile(char *filename, unsigned char **str);
+double compressFile(unsigned char *str, int filelength, char *filname);
 double decompressFile(char *filename);
 void changeFileName(char *filename);
 
 void outputHuffmanCode();
-void output(char *filename);
+void output(char *filename, unsigned char *str);
 char nu_to_char(int *nu);
-LL inputLength;
+int inputLength;
 
-// int solve()
-// {
-//     char filename[] = "input.txt";
-//     inputLength = openFile(filename, &buf);
-//     cout << inputLength << endl;
-//     for (int i = 0; i < inputLength; i++)
-//     {
-//         a[buf[i]]++;
-//     }
-//     tree.createTree(a);
-//     vector<int>::iterator j;
-//     cout << tree.Nodes.size() << endl;
+map<int, vector<int> > M;
 
-//     for (int i = 0; i < tree.Nodes.size(); i++)
-//     {
-//         b[tree.Nodes[i]->data] = tree.Nodes[i];
-//         cout << tree.Nodes[i]->data << " " << tree.Nodes[i]->frequency << endl;
-//         for (j = tree.Nodes[i]->code.begin(); j != tree.Nodes[i]->code.end(); j++)
-//         {
-//             cout << *j << " ";
-//         }
-//         cout << endl;
-//     }
-//     cout << "there" << endl;
-//     output("output.txt");
-//     free(buf);
-//     inputLength = openFile("output.txt", &buf);
-//     cout << endl
-//          << inputLength << endl;
-//     cout << "----------------------------------------------" << endl;
-//     tree.Decode("jm.txt", buf, inputLength);
-//     free(buf);
-//     return 0;
-// }
+int slove()
+{
+    char filename[] = "input.txt";
+    inputLength = openFile(filename, &buf);
+    cout << inputLength << endl;
+    
+    for (int i = 0; i < inputLength; i++)
+    {
+        a[int(buf[i])]++;
+    }
+    tree.createTree(a);
+    vector<int>::iterator j;
+    cout << tree.Nodes.size() << endl;
+    for (int i = 0; i < tree.Nodes.size(); i++)
+    {
+        b[tree.Nodes[i]->data] = tree.Nodes[i];
+        M[abs(int(tree.Nodes[i]->data))] = tree.Nodes[i]->code;
+        // cout<<int(tree.Nodes[i]->data)<<" "<<M[tree.Nodes[i]->data].size()<<endl;
+        // cout<<tree.Nodes[i]->code.size()<<endl;
+        // cout << tree.Nodes[i]->data << " " << tree.Nodes[i]->frequency << endl;
+        // for (j = tree.Nodes[i]->code.begin(); j != tree.Nodes[i]->code.end(); j++)
+        // {
+        //     cout << *j << " ";
+        // }
+        // cout << endl;
+    }
+    cout << "there" << endl;
+    output("output.txt", buf);
+    free(buf);
+    inputLength = openFile("output.txt", &buf);
+    cout << endl
+         << inputLength << endl;
+    cout << "----------------------------------------------" << endl;
+    tree.Decode("jm.txt", buf, inputLength);
+    free(buf);
+    return 0;
+}
 
-// void output(char *filename)
-// {
-//     ofstream output(filename, ios::binary);
-//     ofstream debug("debug.txt");
-//     int nu[8] = {0};
-//     int count = 0;
-//     int x;
-//     cout << "there" << endl;
-//     int s = 0;
-//     for (int i = 0; i < inputLength; i++)
-//     {
-//         x = buf[i];
-//         for (int j = 0; j < b[x]->code.size(); j++)
-//         {
-//             if (count == 8)
-//             {
+void output(char *filename, unsigned char *str)
+{
+    ofstream output(filename, ios::binary);
+    ofstream debug("debug.txt");
+    int nu[8] = {0};
+    int count = 0;
+    int x;
+    cout << "there" << endl;
+    int s = 0;
+    cout<<inputLength<<endl;
+    for (int i = 0; i < inputLength; i++)
+    {
+        x = str[i];
+        //cout<<x<<" "<<M[x].size()<<endl;
+        for (int j = 0; j < M[x].size(); j++)
+        {
+            
+            if (count == 8)
+            {
+                
+                output.put(nu_to_char(nu));
+                count = 0;
+                s++;
+            }
+            nu[count++] = M[x][j];
+        }
+    }
+    cout << "there" << endl;
+    cout << count << endl;
+    if (count != 0)
+    {
+        output << nu_to_char(nu);
+    }
+    char ch = count;
+    output << ch;
+    output.close();
+}
 
-//                 output.put(nu_to_char(nu));
-//                 if (i >= 341 && i <= 350)
-//                 {
-//                     debug.put(nu_to_char(nu));
-//                     for (int i = 0; i < 8; i++)
-//                         cout << nu[i];
-//                 }
-//                 count = 0;
-//                 s++;
-//             }
-//             nu[count++] = b[x]->code[j];
-//         }
-//     }
-//     cout << "there" << endl;
-//     cout << count << endl;
-//     if (count != 0)
-//     {
-//         output << nu_to_char(nu);
-//     }
-//     char ch = count;
-//     output << ch;
-//     output.close();
-// }
-
-LL openFile(char *filename, unsigned char **str)
+int openFile(char *filename, unsigned char **str)
 {
     FILE *input = NULL;
     input = fopen(filename, "rb");
-    if (input == NULL)
-    {
-        cout << "文件打开失败！";
-        return -1;
-    }
     fseek(input, 0, SEEK_END);
-    LL inputLength = ftell(input);
+    int inputLength = ftell(input);
     rewind(input);
     *str = (unsigned char *)malloc(inputLength);
     memset((*str), 0, inputLength);
@@ -127,10 +127,12 @@ LL openFile(char *filename, unsigned char **str)
 int main()
 {
     //    solve();
+    clock_t start, finish;
+    double totaltime;
     char oper;
     char filename[100];
     unsigned char *buf;
-    LL fileLength;
+    int fileLength;
     while (1)
     {
         system("cls");
@@ -158,7 +160,11 @@ int main()
                 else
                     break;
             }
-            printf("压缩比为：%.2f%\n", compressFile(buf, fileLength, filename) * 100);
+            start = clock();
+            double bl =  compressFile(buf, fileLength, filename) * 100;
+            finish  = clock();
+            totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+            printf("压缩成功！压缩时间为：%.3fs\n压缩比率为：%.2f%\n", totaltime, bl);
             cout << "是否输出哈夫曼编码(y/n)：";
             char ch;
             cin >> ch;
@@ -170,8 +176,9 @@ int main()
             }
             tree.clear();
             memset(filename, 0, sizeof(filename));
-            free(buf);
-            for(int i = 0;i < 256;i++) b[i] = NULL;
+           // free(buf);
+            for (int i = 0; i < 256; i++)
+                b[i] = NULL;
         }
         else if (oper == '2')
         {
@@ -186,10 +193,15 @@ int main()
                 FILE *file1 = NULL;
                 file1 = fopen(filename, "rb"); //只读方式打开文件
                 if (file1 == NULL)
-                    cout << "error:文件打开失败！";
-                else    break;
+                    cout << "error:文件打开失败！\n";
+                else
+                    break;
             }
-            printf("压缩比为：%.2f%\n", decompressFile(filename) * 100);
+            start = clock();
+            decompressFile(filename);
+            finish  = clock();
+            totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+            printf("解压成功！解压时间为：%.3fs\n", totaltime);
             cout << "是否输出哈夫曼编码(y/n)：";
             char ch;
             cin >> ch;
@@ -201,7 +213,8 @@ int main()
             }
             tree.clear();
             memset(filename, 0, sizeof(filename));
-            free(buf);
+            for (int i = 0; i < 256; i++)
+                b[i] = NULL;
         }
         else if (oper == '0')
         {
@@ -216,24 +229,23 @@ int main()
     }
 }
 
-double compressFile(unsigned char *str, LL filelength, char *filename)
+double compressFile(unsigned char *str, int filelength, char *filename)
 {
-    LL count[256] = {0};
+    int count[256] = {0};
     changeFileName(filename);
-    ofstream output(filename);
+    ofstream output(filename, ios::binary);
     for (int i = 0; i < filelength; i++)
         count[str[i]]++;
     tree.createTree(count);
-    output<<tree.Nodes.size();
-    output<<" ";
-    cout<<tree.Nodes.size();
+    output << tree.Nodes.size();
+    output << " ";
     for (int i = 0; i < tree.Nodes.size(); i++)
     {
         b[tree.Nodes[i]->data] = tree.Nodes[i];
-        output<<int(tree.Nodes[i]->data);
-        output<<" ";
-        output<<tree.Nodes[i]->frequency;
-        output<<" ";
+        output << int(tree.Nodes[i]->data);
+        output << " ";
+        output << tree.Nodes[i]->frequency;
+        output << " ";
     }
     int nu[8] = {0};
     int count_nu = 0;
@@ -263,30 +275,30 @@ double compressFile(unsigned char *str, LL filelength, char *filename)
     return (1.0 * s) / (1.0 * filelength);
 }
 
-double decompressFile(char *filename){
-    LL count[256];
+double decompressFile(char *filename)
+{
+    int count[256] = {0};
+    unsigned char *str;
     int len, nu;
     int ch;
     ifstream input(filename);
-    input>>len;
+    input >> len;
     input.get();
-    cout<<len;
-    for(int i = 0;i < len;i++)
+    for (int i = 0; i < len; i++)
     {
-        input>>ch;
-        input>>nu;
+        input >> ch;
+        input >> nu;
         count[ch] = nu;
-        cout<<ch<<" "<<nu<<endl;
     }
-    cout<<"---------"<<endl;
     tree.createTree(count);
-    cout<<"---------"<<endl;
-    cout<<tree.Nodes.size()<<endl;
     for (int i = 0; i < tree.Nodes.size(); i++)
-    {
         b[tree.Nodes[i]->data] = tree.Nodes[i];
-    }
-    cout<<"---------"<<endl;
+    inputLength = openFile(filename, &str);
+    int digit = getOffset(count, len);
+    inputLength -= digit;
+    str = str + digit;
+
+    tree.Decode("1.txt", str, inputLength);
     return 1.0;
 }
 

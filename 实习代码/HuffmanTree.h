@@ -4,7 +4,7 @@
  * @Date: 2022-07-11 08:43:57
  * @e-mail: 18109232165@163.com
  * @LastEditors: DLCT
- * @LastEditTime: 2022-07-13 17:32:26
+ * @LastEditTime: 2022-07-14 16:16:32
  */
 #ifndef HUFFMANTREE_H
 #define HUFFMANTREE_H
@@ -13,14 +13,13 @@
 #include <queue>
 #include <vector>
 #include <map>
-#define LL long long
 using namespace std;
 
 vector<int> v;
 
 struct HuffmanTreeNode
 {
-    char data;    //待编码数据
+    int data;    //待编码数据
     int frequency; //出现频率
     vector<int> code;
     bool isdata; //
@@ -30,7 +29,7 @@ struct HuffmanTreeNode
         lchild = NULL;
         rchild = NULL;
     }
-    HuffmanTreeNode(char in_data, LL in_frequency)
+    HuffmanTreeNode(int in_data, int in_frequency)
     {
         data = in_data;
         frequency = in_frequency;
@@ -43,14 +42,14 @@ struct HuffmanTreeNode
 class HuffmanTree
 {
 private:
-    LL n; //字符个数
+    char n; //字符个数
     HuffmanTreeNode *root;
     void createCode(HuffmanTreeNode *node); //编码
     void nodeRemove(HuffmanTreeNode*);
 public:
-    void createTree(LL datafrequency[]); //根据出现频数创建哈夫曼树
+    void createTree(int datafrequency[]); //根据出现频数创建哈夫曼树
     vector<HuffmanTreeNode *> Nodes;     //存放结点
-    void Decode(char *filename, unsigned char *str, LL fileLength);
+    void Decode(char *filename, unsigned char *str, int fileLength);
     void clear();
 };
 
@@ -82,7 +81,7 @@ struct cmp{
    }
 };
 
-void HuffmanTree::createTree(LL datafrequency[])
+void HuffmanTree::createTree(int datafrequency[])
 {
     priority_queue<HuffmanTreeNode *, vector<HuffmanTreeNode *>, cmp> Q;
     // PriorityQueue<HuffmanTreeNode *> Q(10000);
@@ -112,7 +111,7 @@ void HuffmanTree::createTree(LL datafrequency[])
     createCode(root);
 }
 
-void HuffmanTree::Decode(char *filename, unsigned char *str, LL fileLength)
+void HuffmanTree::Decode(char *filename, unsigned char *str, int fileLength)
 {
    
     ofstream output(filename);
@@ -121,9 +120,7 @@ void HuffmanTree::Decode(char *filename, unsigned char *str, LL fileLength)
     int count_nu = 0;
     int count_str = 0;
     HuffmanTreeNode *p = root;
-    cout<<fileLength<<endl;
     char_to_nu(nu, str[count_str++]);
-    cout<<endl;
     int count = 0;
     while (true)
     {
